@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <script src="./script.js" defer ></script>
+  <style>
+    
+
+body {
+    
+    font-family: 'Open Sans', sans-serif;
+    background: #222;
+    background: url('./media/bg.mp4');
+    font-size: 120%;
+  }
+
+  #bgvideo {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    z-index: -100;
+    background-size: contain;
+    object-fit: contain;
+  }
+  
+  .card {
+    background-image: linear-gradient(#6CB4EE,#72A0C1);
+    color: white;
+    padding: 2em;
+    border-radius: 30px;
+    width: 100%;
+    max-width: 420px;
+    margin: 1em;
+  }
+  .card2{
+    /* background: #000000d0;
+    color: white;
+    padding: 2em;
+    border-radius: 30px; */
+    width: 100%;
+    max-width:fit-content;
+    margin: 1em;
+  }
+  
+  
+  .search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  button {
+    margin: 0.5em;
+    border-radius: 50%;
+    border: none;
+    height: 44px;
+    width: 44px;
+    outline: none;
+    background: #7c7c7c2b;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+  }
+  
+  input.search-bar {
+    border: none;
+    outline: none;
+    padding: 0.4em 1em;
+    border-radius: 24px;
+    background: #7c7c7c2b;
+    color: white;
+    font-family: inherit;
+    font-size: 120%;
+    width: calc(100% - 100px);
+  }
+  
+  button:hover {
+    background: #7c7c7c6b;
+  }
+  
+  h1.temp , h1.temp-feels-like{
+    margin: 0;
+    margin-bottom: 0.4em;
+    font-size: 20px;
+  }
+  h1.temp-feels-like{
+    font-size: 16px;
+  }
+  
+  .flex {
+    display: flex;
+    align-items: center;
+  }
+
+  .description {
+    text-transform: capitalize;
+    margin-left: 8px;
+  }
+
+  .weather.loading {
+    visibility: hidden;
+    max-height: 20px;
+    position: relative;
+  }
+  
+  .weather.loading:after {
+    visibility: visible;
+    content: "Loading...";
+    color: white;
+    position: absolute;
+    top: 0;
+    left: 20px;
+  }
+  .dt{
+    font-size: xx-small;
+  }
+  .card h5, .card3 h5{
+    color: rgb(120, 119, 119);
+    margin: -1em 0em 1em;
+  }
+.topcard{
+  display: flex;
+    justify-content:center;
+    align-items: center;
+    height: 70vh;
+    margin-top: -55px; 
+
+    /* background-color: red; */
+}
+.bottomcard{
+  /* background-color: blue; */
+  height: 30vh;
+  width: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+.card3{
+    background-image: linear-gradient(#6CB4EE,#72A0C1);
+  color: white;
+  padding: 2em;
+  border-radius: 30px;
+  width: 100%;
+  /* max-width:fit-content; */
+  margin: 1em;
+  display: flex;
+  flex-direction: column;
+
+}
+.boxes{
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.box{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0em 1em ;
+  padding: 1%;
+  width: 25%;
+  height: auto;
+  /* background-color: rgba(50, 50, 50, 0.404); */
+  flex-direction: column;
+
+}
+.box img{
+  width: 60px;
+  height: 60px;
+}
+.ddt{
+  font-size: 12px;
+}
+
+/* Dropdown container - needed to position the dropdown content */
+#dropdown {
+  float: left;
+  width: 60px;
+  height: 50px;
+  /* overflow: hidden; */
+  position: fixed;
+  
+}
+
+.dropkey{
+  font-size:medium;
+  /* display: contents; */
+  width: 200%;
+  height: 100%;
+  border-radius: 6px;
+  background-color: #222;
+  /* background-image: linear-gradient(#002D62,#72A0C1); */
+  color: white;
+  border: none;
+}
+.dropkey option{
+    color: #fff;
+}
+  </style>
+  <!-- <script src="./dynamicbg.ts"></script> -->
+</head>
+
+<body >
+<!-- <video src="./media/bg.mp4" autoplay></video> -->
+<video autoplay playsinline loop muted id="bgvideo">
+  <source src="./media/bg.mp4" type="video/mp4"/>
+</video>
+<div id="dropdown">
+  <select name="degree" id="deg" class="dropkey">
+    <option value="C"> °Celsius ▼</option>
+    <option value="K" > °Kelvin ▼</option>
+    <option value="F" > °Farenheit ▼</option>
+  </select>
+</div>
+<br>
+<div class="topcard">
+  <div class="card">
+    <div class="search">
+      <input type="text" class="search-bar" placeholder="Search">
+      <button><svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024" height="1.5em"
+          width="1.5em" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M909.6 854.5L649.9 594.8C690.2 542.7 712 479 712 412c0-80.2-31.3-155.4-87.9-212.1-56.6-56.7-132-87.9-212.1-87.9s-155.5 31.3-212.1 87.9C143.2 256.5 112 331.8 112 412c0 80.1 31.3 155.5 87.9 212.1C256.5 680.8 331.8 712 412 712c67 0 130.6-21.8 182.7-62l259.7 259.6a8.2 8.2 0 0 0 11.6 0l43.6-43.5a8.2 8.2 0 0 0 0-11.6zM570.4 570.4C528 612.7 471.8 636 412 636s-116-23.3-158.4-65.6C211.3 528 188 471.8 188 412s23.3-116.1 65.6-158.4C296 211.3 352.2 188 412 188s116.1 23.2 158.4 65.6S636 352.2 636 412s-23.3 116.1-65.6 158.4z">
+          </path>
+        </svg></button>
+    </div>
+    <div class="weather loading">
+      <h2 class="city">Weather in Mumbai</h2>
+      <h1 class="temp">26.66°C</h1>
+      <h1 class="temp-feels-like">26.00°C</h1>
+      <div class="flex">
+        <img src="https://openweathermap.org/img/wn/04n.png" alt="" class="icon" />
+        <div class="description">Cloudy</div>
+      </div>
+      <p class="dt">22/22/22 22/22/22</p>
+    </div>
+  </div>
+  <div class="card2">
+    <div class="card">
+      <div class="humidity">Humidity: 60%</div>
+      <div class="wind">Wind speed: 6.2 km/h</div>
+    </div>
+    <div class="card">
+      <h5>Weather Summary</h5>
+      <div class="temp-avg">Avg Temp of a day: 34°C</div>
+      <div class="temp-min">Min Temp of a day: 6.2°C</div>
+      <div class="temp-max">Max Temp of a day: 60°C</div>
+    </div>
+  </div>
+</div>
+  <div class="bottomcard">
+    <div class="card3">
+      <h5>Weather forecast</h5>
+      <div class="boxes">
+        <div class="box">
+          <img src="https://openweathermap.org/img/wn/04n.png" alt="" class="icon1"></img>
+          <div class="temp1"></div>
+          <div class="dt1 ddt"></div>
+        </div>
+        
+        <div class="box">
+          <img src="https://openweathermap.org/img/wn/04n.png" alt="" class="icon2"></img>
+          <div class="temp2"></div>
+          <div class="dt2 ddt"></div>
+        </div>
+  
+        <div class="box">
+          <img src="https://openweathermap.org/img/wn/04n.png" alt="" class="icon3"></img>
+          <div class="temp3"></div>
+          <div class="dt3 ddt"></div>
+        </div>
+  
+        <div class="box">
+          <img src="https://openweathermap.org/img/wn/04n.png" alt="" class="icon4"></img>
+          <div class="temp4"></div>
+          <div class="dt4 ddt"></div>
+        </div>
+  
+        <div class="box">
+          <img src="https://openweathermap.org/img/wn/04n.png" alt="" class="icon5"></img>
+          <div class="temp5"></div>
+          <div class="dt5 ddt"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    let weather = {
+    apiKey:"29bd84e33289f196e453fde9559b7bbd",
+    fetchWeather: function (city) {
+      fetch(
+        "https://api.openweathermap.org/data/2.5/forecast?q="
+        +city
+        +"&units=metric&appid="
+        + this.apiKey
+      )
+        .then((response) => {
+          if (!response.ok) {
+            alert("No weather found.");
+            throw new Error("No weather found.");
+          } 
+          return response.json();
+        })
+        .then((data) => this.displayWeather(data));
+    },
+    displayWeather: function (data) {
+
+      
+
+      const { name } = data.city ;
+      const { icon, description } = data.list[0].weather[0];
+      const { temp,feels_like, humidity,temp_min,temp_max } = data.list[0].main;
+      const { speed } = data.list[0].wind;
+      const  datetime  = data.list[0].dt_txt;
+      // console.log(name,icon,description);
+      document.querySelector(".city").innerText = "Weather in " + name;
+      document.querySelector(".icon").src =
+        "https://openweathermap.org/img/wn/" + icon + ".png";
+      document.querySelector(".description").innerText = description;
+      document.querySelector(".dt").innerText = "last updated:  "+ datetime;
+
+      const convertTemp = (temp, unit) => {
+        if (unit === "F") {
+          return ((temp * 9 / 5) + 32).toFixed(2);
+      } else if (unit === "K") {
+          return (temp + 273.15).toFixed(2);
+      } else {
+          return temp.toFixed(2);
+      }
+    };
+    
+    const selectedUnit = ttt;
+    
+    document.querySelector(".city").innerText = "Weather in " + name;
+    document.querySelector(".icon").src =
+        "https://openweathermap.org/img/wn/" + icon + ".png";
+    document.querySelector(".description").innerText = description;
+    document.querySelector(".dt").innerText = "Last updated: " + datetime;
+    
+    document.querySelector(".temp").innerText = convertTemp(temp, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".temp-feels-like").innerText = "Feels like: " + convertTemp(feels_like, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".temp-avg").innerText = "Avg Temp: " + convertTemp((temp_min + temp_max) / 2, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".temp-min").innerText = "Min Temp: " + convertTemp(temp_min, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".temp-max").innerText = "Max Temp: " + convertTemp(temp_max, selectedUnit) + " °" + selectedUnit;
+    
+    document.querySelector(".humidity").innerText = "Humidity: " + humidity + "%";
+    document.querySelector(".wind").innerText = "Wind speed: " + speed + " km/h";
+    
+    document.querySelector(".weather").classList.remove("loading");
+    
+    document.querySelector(".icon1").src =
+        "https://openweathermap.org/img/wn/" + data.list[6].weather[0].icon + ".png";
+    document.querySelector(".temp1").innerText = convertTemp(data.list[6].main.temp, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".dt1").innerText = data.list[6].dt_txt;
+    
+    document.querySelector(".icon2").src =
+        "https://openweathermap.org/img/wn/" + data.list[12].weather[0].icon + ".png";
+    document.querySelector(".temp2").innerText = convertTemp(data.list[12].main.temp, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".dt2").innerText = data.list[12].dt_txt;
+    
+    document.querySelector(".icon3").src =
+        "https://openweathermap.org/img/wn/" + data.list[18].weather[0].icon + ".png";
+    document.querySelector(".temp3").innerText = convertTemp(data.list[18].main.temp, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".dt3").innerText = data.list[18].dt_txt;
+    
+    document.querySelector(".icon4").src =
+        "https://openweathermap.org/img/wn/" + data.list[24].weather[0].icon + ".png";
+    document.querySelector(".temp4").innerText = convertTemp(data.list[24].main.temp, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".dt4").innerText = data.list[24].dt_txt;
+    
+    document.querySelector(".icon5").src =
+        "https://openweathermap.org/img/wn/" + data.list[30].weather[0].icon + ".png";
+    document.querySelector(".temp5").innerText = convertTemp(data.list[30].main.temp, selectedUnit) + " °" + selectedUnit;
+    document.querySelector(".dt5").innerText = data.list[30].dt_txt;
+
+    },
+    search: function () {
+      this.fetchWeather(document.querySelector(".search-bar").value);
+    },
+  };
+
+
+  document.querySelector(".search button").addEventListener("click", function () {
+    weather.search();
+  });
+  
+  document
+    .querySelector(".search-bar")
+    .addEventListener("keyup", function (event) {
+      if (event.key == "Enter") {
+        weather.search();
+      }
+    });
+    var ttt = "C";
+    document.querySelector("select").addEventListener("change", function (evt) {
+        ttt = evt.target.value;
+        console.log(ttt);
+        weather.fetchWeather(document.querySelector(".city").innerText.split("Weather in ")[1] || "Bangalore");
+    });
+
+  weather.fetchWeather("Hyderabad");
+  </script>
+
+</body>
+
+
+</html>
